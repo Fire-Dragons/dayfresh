@@ -31,6 +31,9 @@ def login_handle(request):
     upasswd = myutil.mymd5(upasswd)
 
     if User.objects.filter(uname=uname,upasswd=upasswd).exists():
+        user= User.objects.filter(uname=uname,upasswd=upasswd)
+        if user[0].is_activity == '0':
+            return HttpResponse({'is_activity':'0'})
         response = redirect ('/')
         #cookie
         if remember:

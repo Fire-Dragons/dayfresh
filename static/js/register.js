@@ -1,4 +1,4 @@
-$(function () {
+﻿$(function () {
 
     var error_name = false;
     var error_password = false;
@@ -38,7 +38,7 @@ $(function () {
 
     function check_user_name() {
         var username = $('#user_name').val();
-        var myReg = /^[a-zA-Z0-9_]{5,}$/;
+        var myReg = /^[a-zA-Z0-9_]{5,20}$/;
         if (!myReg.test(username)) {
 
             $('#user_name').next().html('请输入5-20个字符的用户名')
