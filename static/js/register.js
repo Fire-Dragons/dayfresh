@@ -5,6 +5,7 @@
     var error_check_password = false;
     var error_email = false;
     var error_check = false;
+    var eyzm_check = false;
 
 
     $('#user_name').blur(function () {
@@ -22,6 +23,85 @@
     $('#email').blur(function () {
         check_email();
     });
+
+    $('#eyzm').blur(function () {
+        check_eyzm();
+    });
+
+    //邮箱验证倒计时
+    $('.i-txt-get-code').one('click', function () {
+        //发送邮件
+        send_mail();
+    });
+
+    function send_mail() {
+        check_user_name();
+        check_pwd();
+        check_cpwd();
+        check_email();
+        if (error_name == false && error_password == false && error_check_password == false && error_email == false && error_check == false) {
+            countdown();
+            $('.i-txt-get-code').next().hide();
+            username = $('#user_name').val();
+            email = $('#email').val();
+            upasswd = $('#pwd').val();
+            $.ajax(
+                {
+                    'type': 'get',
+                    'url': '/user/send_email',
+                    'datatype':'json',
+                    'data': {'uname':username,'umail':email,'upasswd':upasswd},
+                    'success': function (date) {
+                        //倒计时
+                        countdown();
+                        if (date == '1') {
+                            alert('邮件发送成功');
+                        }
+                        else {
+                            alert('邮件发送失败')
+                        }
+                    }
+                }
+            );
+
+        } else {
+            $('.i-txt-get-code').next().show();
+            $('.i-txt-get-code').next().html('请先输入上面的信息');
+        }
+
+    }
+
+
+    //倒计时
+    var time = 60;
+
+    function countdown() {
+        if (time == 0) {
+            //e.setAttribute('disabled',false);         对没有disbaled属性的span标签，此方法无效
+            // $('.i-txt-get-code').setAttribute("onclick","send_mail(this)");
+            $('.i-txt-get-code').html("重新获取验证码");
+
+            time = 60;
+            //邮箱验证倒计时
+            $('.i-txt-get-code').one('click', function () {
+                //发送邮件
+                send_mail();
+            });
+        } else {
+            //e.attr('disabled',true);                  对没有disbaled属性的span标签，此方法也无效
+            //e.setAttribute("onclick", '');            这样写也可以
+            // $('.i-txt-get-code').removeAttr("onclick");
+            $('.i-txt-get-code').html("重新发送(" + time + ")");
+            time--;
+            setTimeout(function () {
+                countdown();
+            }, 1000)
+
+
+        }
+
+    }
+
 
     $('#allow').click(function () {
         if ($(this).is(':checked')) {
@@ -112,18 +192,39 @@
     }
 
 
+    //验证邮箱验证码
+    function check_eyzm() {
+        var user_eyzm = $('#eyzm').val();
+        console.info(user_eyzm)
+        $.ajax({
+                'url': '/user/activate',
+                'type': 'get',
+                'data': 'ueyzm=' + user_eyzm,
+                'success': function (date) {
+                    if (date == '1') {
+                        $('.i-txt-get-code').next().hide();
+                        error_eyzm = false;
+                    }
+                    else {
+                        $('.i-txt-get-code').next().html('邮箱验证码错误');
+                        $('.i-txt-get-code').next().show();
+                        error_eyzm = true;
+                    }
+                }
+            }
+        )
+    }
+
     $('#reg_form').submit(function () {
         check_user_name();
         check_pwd();
         check_cpwd();
         check_email();
-        console.info('fun');
-        if (error_name == false && error_password == false && error_check_password == false && error_email == false && error_check == false) {
-            console.info('fun1');
+        check_eyzm();
+        if (error_name == false && error_password == false && error_check_password == false && error_email == false && error_check == false && error_eyzm == false) {
             return true;
         }
         else {
-            console.info('fun2');
             return false;
         }
 
