@@ -40,7 +40,7 @@
         check_cpwd();
         check_email();
         if (error_name == false && error_password == false && error_check_password == false && error_email == false && error_check == false) {
-            countdown();
+
             $('.i-txt-get-code').next().hide();
             username = $('#user_name').val();
             email = $('#email').val();
@@ -197,7 +197,7 @@
         var user_eyzm = $('#eyzm').val();
         console.info(user_eyzm)
         $.ajax({
-                'url': '/user/activate',
+                'url': '/user/activate/',
                 'type': 'get',
                 'data': 'ueyzm=' + user_eyzm,
                 'success': function (date) {

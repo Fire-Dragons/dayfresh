@@ -79,7 +79,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dayfresh',
-        'HOST':'localhost',
+        'HOST':'192.168.12.47',
         'PORT':'3306',
         'USER':'root',
         'PASSWORD':'545733',
@@ -111,22 +111,14 @@ STATICFILES_DIRS=[
 
 #session
 SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_HOST = 'localhost'
+SESSION_REDIS_HOST = '192.168.12.47'
 SESSION_REDIS_PORT = 6379
 SESSION_REDIS_DB = 0
 SESSION_REDIS_PASSWORD = ''
 SESSION_REDIS_PREFIX = 'session'
 
-#email
-# EMAIL_HOST = 'smtp.qq.com'
-# EMAIL_HOST_USER = '17********@qq.com'
-# #授权码
-# EMAIL_HOST_PASSWORD = 'dxsblqtqohiycgcb'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# #可以域名，可以设置本地
-# DOMAIN = 'http://127.0.0.1:8000'
 
+#email
 EMAIL_BACKEND ='django.core.mail.backends.smtp.EmailBackend'#email后端
 EMAIL_HOST = "smtp.163.com"   # 服务器
 EMAIL_PORT = 25               # 一般情况下都为25
@@ -134,4 +126,4 @@ EMAIL_HOST_USER = "jzl1091889012@163.com"   # 账号
 EMAIL_HOST_PASSWORD = "wuhen1998"  # 密码
 EMAIL_FROM = "jzl1091889012@163.com"        # 邮箱来自
 EMAIL_USE_TLS = True # 与SMTP服务器通信时，是否启动TLS链接(安全链接)。默认是false
-DOMAIN='http://127.0.0.1:8000/user/activate'
+DOMAIN='http://192.168.12.10:8888/user/activate'
