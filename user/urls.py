@@ -9,7 +9,7 @@ urlpatterns = [
     url (r'^verificationcode$', views.verificationcode),
     url (r'^check_yzm$', views.check_yzm),
     url (r'^send_email$', views.send_email),
-    url (r'^activate/$', views.activate),
-    url (r'^activate/(?P<token>.*)$', views.activates),
-
+    # url (r'^activate/$', views.activate),
+    # url (r'^activate/(?P<token>.*)$', views.activates),
+    url(r'^activate',views.Activate.as_view())
 ]

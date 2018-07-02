@@ -40,7 +40,8 @@
         check_cpwd();
         check_email();
         if (error_name == false && error_password == false && error_check_password == false && error_email == false && error_check == false) {
-
+            //倒计时
+            countdown();
             $('.i-txt-get-code').next().hide();
             username = $('#user_name').val();
             email = $('#email').val();
@@ -49,11 +50,10 @@
                 {
                     'type': 'get',
                     'url': '/user/send_email',
-                    'datatype':'json',
-                    'data': {'uname':username,'umail':email,'upasswd':upasswd},
+                    'datatype': 'json',
+                    'data': {'uname': username, 'umail': email, 'upasswd': upasswd},
                     'success': function (date) {
-                        //倒计时
-                        countdown();
+
                         if (date == '1') {
                             alert('邮件发送成功');
                         }
@@ -195,7 +195,6 @@
     //验证邮箱验证码
     function check_eyzm() {
         var user_eyzm = $('#eyzm').val();
-        console.info(user_eyzm)
         $.ajax({
                 'url': '/user/activate/',
                 'type': 'get',

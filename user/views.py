@@ -189,66 +189,79 @@ def send_email(request):
     message = ''  # 文本内容
     sender = EMAIL_FROM
     receiver = [umail]
-    html_message = '%s欢迎加入天天生鲜\n你的注册码为<span style="color:red">%s</span>\n或访问该链接完成用户验证:<a href="%s/%s">点击完成注册</a>' % (username,str, DOMAIN, token)
+    html_message = '%s欢迎加入天天生鲜<br/>你的注册码为<span style="color:red">%s</span><br/>或访问该链接完成用户验证:<a href="%s?token=%s">点击完成注册</a>' % (username,str, DOMAIN, token)
     try:
         send_mail (subject, message, sender, receiver, html_message=html_message)
         response = 1
     except SignatureExpired as e:
         response = 0
     # 把用户信息写入session用于链接验证
-    # request.session['eyzm'] = str
+    request.session['eyzm'] = str
     # request.session['uname'] = upasswd
     # request.session['upasswd'] = umail
-    # request.session.set_expiry(0)
+    request.session.set_expiry(0)
 
     return HttpResponse (response)
 
-
+class Activate(View):
+    def get(self,request):
+        token = None
+        # 用户输入邮箱验证码验证
+        if request.GET.get('token')==None:
+            ueyzm = request.GET.get('ueyzm')
+            eyzm = request.session['eyzm']
+            ueyzm = ueyzm.upper()
+            eyzm = eyzm.upper()
+            if ueyzm == eyzm:
+                return HttpResponse(1)
+            else:
+                return HttpResponse(0)
+        else:
+            # 用户点击链接验证
+            serializer = Serializer(SECRET_KEY, 3600)
+            try:
+                token = request.GET.get('token')
+                info = serializer.loads(token)
+                uname = info['uname']
+                upasswd = info['upasswd']
+                umail = info['umail']
+                user = User()
+                user.uname = uname
+                user.upasswd = upasswd
+                user.umail = umail
+                user.is_activity = 1
+                user.save()
+                response = redirect('/user/login')
+            except SignatureExpired as e:
+                response = HttpResponse('激活链接已过期')
+            return response
 # 用户输入邮箱验证码验证
-def activate(request):
-    # if request.GET.get('uyzm') == None:
-    #     print(request.session.keys())
-    #     uname = request.GET.get('uname')
-    #     upasswd = request.session['uname']
-    #     umail = request.session['upasswd']
-    #     user = User()
-    #     user.uname = uname
-    #     print(uname)
-    #     user.upasswd = upasswd
-    #     print(upasswd)
-    #     user.umail = umail
-    #     print(umail)
-    #     user.is_activity = 1
-    #     user.save()
-    #     return redirect('/user/login')
-    # else:
-    ueyzm = request.GET.get ('ueyzm')
-    eyzm = request.session['eyzm']
-    ueyzm = ueyzm.upper ()
-    print (eyzm)
-    print (ueyzm)
-    eyzm = eyzm.upper ()
-    if ueyzm == eyzm:
-        return HttpResponse (1)
-    else:
-        return HttpResponse (0)
+# def activate(request):
+#     # if request.GET.get('uyzm') == None:
+#     #     print(request.session.keys())
+#     #     uname = request.GET.get('uname')
+#     #     upasswd = request.session['uname']
+#     #     umail = request.session['upasswd']
+#     #     user = User()
+#     #     user.uname = uname
+#     #     print(uname)
+#     #     user.upasswd = upasswd
+#     #     print(upasswd)
+#     #     user.umail = umail
+#     #     print(umail)
+#     #     user.is_activity = 1
+#     #     user.save()
+#     #     return redirect('/user/login')
+#     # else:
+#     ueyzm = request.GET.get ('ueyzm')
+#     eyzm = request.session['eyzm']
+#     ueyzm = ueyzm.upper ()
+#     print (eyzm)
+#     print (ueyzm)
+#     eyzm = eyzm.upper ()
+#     if ueyzm == eyzm:
+#         return HttpResponse (1)
+#     else:
+#         return HttpResponse (0)
 
 
-# 用户点击链接验证
-def activates(request, token):
-    serializer = Serializer (SECRET_KEY, 3600)
-    try:
-        info = serializer.loads (token)
-        uname = info['uname']
-        upasswd = info['upasswd']
-        umail = info['umail']
-        user = User()
-        user.uname=uname
-        user.upasswd=upasswd
-        user.umail=umail
-        user.is_activity=1
-        user.save()
-        response = redirect('/user/login')
-    except SignatureExpired as e:
-        response = HttpResponse('激活链接已过期')
-    return response
