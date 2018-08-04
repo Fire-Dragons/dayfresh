@@ -25,7 +25,6 @@ $(function () {
     //更换验证码
     function change_yzm() {
         var url='/user/verificationcode?d=';
-        alert($('.verificationcode1').attr('src'));
         $('.verificationcode1').attr('src',url+new Date().getTime());
     }
 

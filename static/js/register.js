@@ -5,7 +5,7 @@
     var error_check_password = false;
     var error_email = false;
     var error_check = false;
-    var eyzm_check = false;
+    var error_eyzm = false;
 
 
     $('#user_name').blur(function () {
@@ -54,12 +54,10 @@
                     'data': {'uname': username, 'umail': email, 'upasswd': upasswd},
                     'success': function (date) {
 
-                        if (date == '1') {
-                            alert('邮件发送成功');
-                        }
-                        else {
+                        if (date == '0') {
                             alert('邮件发送失败')
                         }
+
                     }
                 }
             );
@@ -79,7 +77,7 @@
         if (time == 0) {
             //e.setAttribute('disabled',false);         对没有disbaled属性的span标签，此方法无效
             // $('.i-txt-get-code').setAttribute("onclick","send_mail(this)");
-            $('.i-txt-get-code').html("重新获取验证码");
+            $('.i-txt-get-code').html("获取验证码");
 
             time = 60;
             //邮箱验证倒计时
@@ -195,23 +193,30 @@
     //验证邮箱验证码
     function check_eyzm() {
         var user_eyzm = $('#eyzm').val();
-        $.ajax({
-                'url': '/user/activate/',
-                'type': 'get',
-                'data': 'ueyzm=' + user_eyzm,
-                'success': function (date) {
-                    if (date == '1') {
-                        $('.i-txt-get-code').next().hide();
-                        error_eyzm = false;
-                    }
-                    else {
-                        $('.i-txt-get-code').next().html('邮箱验证码错误');
-                        $('.i-txt-get-code').next().show();
-                        error_eyzm = true;
+        if (user_eyzm == '') {
+            error_eyzm = true;
+            $('.i-txt-get-code').next().html('邮箱验证码为空');
+            $('.i-txt-get-code').next().show();
+        }
+        else {
+            $.ajax({
+                    'url': '/user/activate/',
+                    'type': 'get',
+                    'data': 'ueyzm=' + user_eyzm,
+                    'success': function (date) {
+                        if (date == '1') {
+                            $('.i-txt-get-code').next().hide();
+                            error_eyzm = false;
+                        }
+                        else {
+                            $('.i-txt-get-code').next().html('邮箱验证码错误');
+                            $('.i-txt-get-code').next().show();
+                            error_eyzm = true;
+                        }
                     }
                 }
-            }
-        )
+            )
+        }
     }
 
     $('#reg_form').submit(function () {

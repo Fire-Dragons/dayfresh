@@ -1,0 +1,135 @@
+{% extends 'goods/base_detail_list.html' %}
+
+{% block main_content %}
+    <div class="breadcrumb">
+        <a href="/">全部分类</a>
+        <span>></span>
+        <a href="/goods_list/{{ typeid }}/1/1/">{{ goodtype.name }}</a>
+    </div>
+
+    {% csrf_token %}
+    <div class="main_wrap clearfix">
+        <div class="l_wrap fl clearfix">
+            <div class="new_goods">
+                <h3>新品推荐</h3>
+                <ul>
+                    {% for sku in new_skus %}
+                        <li>
+                            <a href="/goods/detail/{{ sku.id }}"><img src="{{ sku.image.url }}"></a>
+                            <h4><a href="/{{ sku.id }}">{{ sku.name }}</a></h4>
+                            <div class="prize">￥{{ sku.price }}</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="r_wrap fr clearfix">
+            <div class="sort_bar">
+                <a href="/goods/goods_list/{{ typeid }}/1/1"
+                        {% if sort == "1" %}
+                   class="active"
+                        {% endif %}
+                >默认</a>
+                <a href="/goods/goods_list/{{ typeid }}/1/2"
+                        {% if sort == "2" %}
+                   class="active"
+                        {% endif %}
+                >价格</a>
+                <a href="/goods/goods_list/{{ typeid }}/1/3"
+                        {% if sort == "3" %}
+                   class="active"
+                        {% endif %}
+                >人气</a>
+            </div>
+            <ul class="goods_type_list clearfix">
+                {% for sku in goodList %}
+                    <li>
+                        <a href="/goods/detail/{{ sku.id }}"><img src="{{ sku.image.url }}"></a>
+                        <h4><a href="/goods/detail/{{ sku.id }}">{{ sku.name }}</a></h4>
+                        <div class="operate">
+                            <span class="prize">￥{{ sku.price }}</span>
+                            <span class="unit">{{ sku.unite }}</span>
+                            {% if user.is_authenticated %}
+                                <a href="javascript:;" id="add_goods" sku_id="{{ sku.id }}" class="add_goods" title="加入购物车"></a>
+                            {% else %}
+                                <a href="/user/login" class="add_goods" title="加入购物车"></a>
+                            {% endif %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <div class="pagenation">
+                {% if goodList.has_previous %}
+                    <a href="/goods/goods_list/{{ typeid }}/{{ pindex }}/{{ sort }}">
+                        <上一页
+                    </a>
+                {% endif %}
+
+                {% for pindex in pindexlist %}
+                    <!--如果选择的是当前页，则标记为活动样式-->
+                    {% if pindex == pageid %}
+                        <a href="" class="active" onclick="return false">{{ pindex }}</a>
+                    {% else %}
+                        <a href="/goods/goods_list/{{ typeid }}/{{ pindex }}/{{ sort }}">{{ pindex }}</a>
+                    {% endif %}
+                {% endfor %}
+                {% if goodList.has_next %}
+                    <a href="/goods/goods_list/{{ typeid }}/{{ goodList.next_page_number }}/{{ sort }}">下一页></a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock main_content %}
+{% block bottom %}
+    <div class="add_jump"></div>
+{% endblock bottom %}
+{% block bottomfiles %}
+    <script type="text/javascript">
+    // 获取add_cart a标签左上角的坐标
+        var $add_x = $('#add_goods').offset().top;
+        var $add_y = $('#add_goods').offset().left;
+
+        // 获取show_count div元素左上角的坐标
+        var $to_x = $('#show_count').offset().top;
+        var $to_y = $('#show_count').offset().left;
+
+        $('#add_goods').click(function () {
+            // 获取商品的id和商品的数量
+            var count = 1
+            var sku_id = $(this).attr('sku_id') // prop(属性名): 获取html标签原有的属性
+            // 获取csrf隐藏域的值
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val()
+
+            // 组织参数
+            var params = {'sku_id': sku_id, 'count': count, 'csrfmiddlewaretoken': csrf}
+
+            // 发起ajax post请求，访问/cart/add，传递参数：商品id(sku_id) 商品数量(count)
+            $.post('/cart/add', params, function (data) {
+                if (data.res == 5) {
+                    // 添加成功
+                    // alert('添加成功')
+                    // 设置add_jump div元素的样式
+                    $(".add_jump").css({'left': $add_y + 80, 'top': $add_x + 10, 'display': 'block'})
+                    $(".add_jump").stop().animate({
+                            'left': $to_y + 7,
+                            'top': $to_x + 7
+                        },
+                        "fast", function () {
+                            $(".add_jump").fadeOut('fast', function () {
+                                // 设置页面上购物车中商品的条目数
+                                $('#show_count').html(data.cart_count);
+                            });
+
+                        });
+                }
+                else {
+                    // 添加失败
+                    alert(data.errmsg)
+                }
+            })
+        })
+    </script>
+{% endblock %}
